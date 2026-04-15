@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: proflow-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: productivity_db
+    networks:
+      - proflow-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: proflow-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongodb:27017/productivity_db
+      JWT_SECRET: ${JWT_SECRET:-super_secure_jwt_secret_change_me_now}
+      JWT_EXPIRES_IN: 7d
+      NODE_ENV: production
+      FRONTEND_URL: http://localhost
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - proflow-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: proflow-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - proflow-net
+
+volumes:
+  mongo-data:
+
+networks:
+  proflow-net:
+    driver: bridge

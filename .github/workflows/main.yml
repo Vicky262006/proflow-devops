@@ -1,0 +1,25 @@
+name: ProFlow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Show files (debug)
+      run: ls -la
+
+    - name: Build Docker Containers
+      run: docker-compose build
+
+    - name: Run Containers
+      run: docker-compose up -d
+
+    - name: Show Running Containers
+      run: docker ps
