@@ -17,11 +17,11 @@ const getComments = async (req, res) => {
 // @route POST /api/comments/:taskId
 const addComment = async (req, res) => {
   try {
-    const { content } = req.body;
+    const { text } = req.body;
     const task = await Task.findById(req.params.taskId);
     if (!task) return res.status(404).json({ message: 'Task not found' });
 
-    const comment = await Comment.create({ content, author: req.user._id, task: req.params.taskId });
+    const comment = await Comment.create({ text, author: req.user._id, task: req.params.taskId });
     await task.updateOne({ $push: { comments: comment._id } });
     await comment.populate('author', 'username avatar');
 

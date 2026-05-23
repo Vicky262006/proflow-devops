@@ -9,8 +9,18 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
-    environment:
-      MONGO_INITDB_DATABASE: productivity_db
+    networks:
+      - proflow-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: proflow-redis
+    restart: unless-stopped
     networks:
       - proflow-net
 
@@ -20,19 +30,23 @@ services:
       dockerfile: Dockerfile
     container_name: proflow-backend
     restart: unless-stopped
-    ports:
-      - "5000:5000"
-    environment:
-      PORT: 5000
-      MONGO_URI: mongodb://mongodb:27017/productivity_db
-      JWT_SECRET: ${JWT_SECRET:-super_secure_jwt_secret_change_me_now}
-      JWT_EXPIRES_IN: 7d
-      NODE_ENV: production
-      FRONTEND_URL: http://localhost
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017/proflow_enterprise
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - FRONTEND_URL=http://localhost
+      - PORT=5000
     volumes:
       - ./backend/uploads:/app/uploads
+      - ./backend/logs:/app/logs
+    ports:
+      - "5000:5000"
     networks:
       - proflow-net
 
@@ -46,6 +60,30 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - proflow-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: proflow-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    networks:
+      - proflow-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: proflow-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
     networks:
       - proflow-net
 

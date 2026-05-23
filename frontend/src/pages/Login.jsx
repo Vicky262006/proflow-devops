@@ -17,8 +17,9 @@ const Login = () => {
     e.preventDefault()
     setLoading(true)
     try {
-      await login(form.email, form.password)
-      navigate('/dashboard')
+      const data = await login(form.email, form.password)
+      const role = data.user?.role
+      navigate(role === 'admin' ? '/admin/dashboard' : '/employee/dashboard')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed')
     } finally {

@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters'],
     select: false,
   },
+  role: {
+    type: String,
+    enum: ['admin', 'employee'],
+    default: 'employee',
+  },
   avatar: {
     type: String,
     default: '',
@@ -33,10 +38,48 @@ const userSchema = new mongoose.Schema({
     maxlength: [200, 'Bio cannot exceed 200 characters'],
     default: '',
   },
-  role: {
+  department: {
     type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
+    trim: true,
+    default: '',
+  },
+  position: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  phone: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  skills: [{
+    type: String,
+    trim: true,
+  }],
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  lastLogin: {
+    type: Date,
+    default: null,
+  },
+  refreshToken: {
+    type: String,
+    select: false,
+  },
+  passwordResetToken: {
+    type: String,
+    select: false,
+  },
+  passwordResetExpires: {
+    type: Date,
+    select: false,
+  },
+  leaveBalance: {
+    type: Number,
+    default: 20,
   },
   teams: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -60,5 +103,10 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
+
+// Virtual for full display
+userSchema.virtual('displayName').get(function () {
+  return this.username;
+});
 
 module.exports = mongoose.model('User', userSchema);

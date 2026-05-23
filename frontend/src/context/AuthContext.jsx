@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
       setToken(null)
       setUser(null)
       localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
     } finally {
       setLoading(false)
     }
@@ -31,9 +32,37 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token, fetchMe])
 
+  // Silent token refresh
+  useEffect(() => {
+    const interceptor = api.interceptors.response.use(
+      (res) => res,
+      async (error) => {
+        const originalRequest = error.config
+        if (error.response?.status === 401 && error.response?.data?.code === 'TOKEN_EXPIRED' && !originalRequest._retry) {
+          originalRequest._retry = true
+          try {
+            const refreshToken = localStorage.getItem('refreshToken')
+            const { data } = await api.post('/auth/refresh-token', { refreshToken })
+            localStorage.setItem('token', data.token)
+            localStorage.setItem('refreshToken', data.refreshToken)
+            api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+            setToken(data.token)
+            originalRequest.headers['Authorization'] = `Bearer ${data.token}`
+            return api(originalRequest)
+          } catch {
+            logout()
+          }
+        }
+        return Promise.reject(error)
+      }
+    )
+    return () => api.interceptors.response.eject(interceptor)
+  }, [])
+
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password })
     localStorage.setItem('token', data.token)
+    localStorage.setItem('refreshToken', data.refreshToken)
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
     setToken(data.token)
     setUser(data.user)
@@ -41,9 +70,10 @@ export const AuthProvider = ({ children }) => {
     return data
   }
 
-  const register = async (username, email, password) => {
-    const { data } = await api.post('/auth/register', { username, email, password })
+  const register = async (username, email, password, role = 'employee') => {
+    const { data } = await api.post('/auth/register', { username, email, password, role })
     localStorage.setItem('token', data.token)
+    localStorage.setItem('refreshToken', data.refreshToken)
     api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
     setToken(data.token)
     setUser(data.user)
@@ -52,7 +82,9 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = () => {
+    api.post('/auth/logout').catch(() => {})
     localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
     delete api.defaults.headers.common['Authorization']
     setToken(null)
     setUser(null)
@@ -63,8 +95,11 @@ export const AuthProvider = ({ children }) => {
     setUser(updatedUser)
   }
 
+  const isAdmin = user?.role === 'admin'
+  const isEmployee = user?.role === 'employee'
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser, fetchMe }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser, fetchMe, isAdmin, isEmployee }}>
       {children}
     </AuthContext.Provider>
   )

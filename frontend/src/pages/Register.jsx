@@ -30,8 +30,9 @@ const Register = () => {
     }
     setLoading(true)
     try {
-      await register(form.username, form.email, form.password)
-      navigate('/dashboard')
+      const data = await register(form.username, form.email, form.password)
+      const role = data.user?.role
+      navigate(role === 'admin' ? '/admin/dashboard' : '/employee/dashboard')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed')
     } finally {

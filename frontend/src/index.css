@@ -1,37 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+:root {
+  --primary-glow: conic-gradient(
+    from 180deg at 50% 50%,
+    #16abff33 0deg,
+    #0885ff33 55deg,
+    #54d6ff33 120deg,
+    #0071ff33 160deg,
+    transparent 360deg
+  );
+  --secondary-glow: radial-gradient(
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0)
+  );
 
-  html {
-    scroll-behavior: smooth;
-  }
+  /* Light Theme Color Scales (RGB format for Tailwind opacity modifiers) */
+  --slate-50: 248 250 252;
+  --slate-100: 241 245 249;
+  --slate-200: 15 23 42;    /* Primary text (Dark Slate) */
+  --slate-300: 51 65 85;     /* Body text */
+  --slate-400: 71 85 105;    /* Secondary text */
+  --slate-500: 100 116 139;  /* Placeholder/muted text */
+  --slate-600: 148 163 184;  /* Border focus / hover */
+  --slate-700: 203 213 225;  /* Subtle divider/border */
+  --slate-800: 231 236 242;  /* Main border (Light Grey) */
+  --slate-900: 255 255 255;  /* Cards/Sidebar background (White) */
+  --slate-950: 246 248 251;  /* Page background (Off-white) */
 
-  body {
-    @apply font-sans bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  --gray-50: 249 250 251;
+  --gray-100: 243 244 246;
+  --gray-200: 31 41 55;     /* Primary text (Dark Gray) */
+  --gray-300: 75 85 99;      /* Body text */
+  --gray-400: 107 114 128;   /* Secondary text */
+  --gray-500: 156 163 175;   /* Placeholder */
+  --gray-600: 209 213 219;
+  --gray-700: 229 231 235;   /* Subtle divider/border */
+  --gray-800: 237 240 243;   /* Main border (Light Grey) */
+  --gray-900: 255 255 255;   /* Modals/Dropdowns background (White) */
+  --gray-950: 249 250 251;   /* Container background */
 
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 dark:bg-gray-700 rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400 dark:bg-gray-600;
-  }
+  --primary-50: 240 244 255;
+  --primary-100: 224 234 255;
+  --primary-200: 199 215 254;
+  --primary-300: 165 180 252;
+  --primary-400: 129 140 248;
+  --primary-500: 79 70 229;  /* Indigo primary */
+  --primary-600: 67 56 202;  /* Indigo dark */
+  --primary-700: 55 48 163;
+  --primary-800: 49 46 129;
+  --primary-900: 30 27 75;
+
+  --chart-grid: 226 232 240;
+  --chart-text: 100 116 139;
+}
+
+.dark {
+  /* Dark Theme Color Scales */
+  --slate-50: 248 250 252;
+  --slate-100: 241 245 249;
+  --slate-200: 226 232 245;  /* Primary light text */
+  --slate-300: 203 213 235;  /* Secondary text */
+  --slate-400: 148 163 194;  /* Muted text */
+  --slate-500: 100 116 149;  /* Muted text/placeholder */
+  --slate-600: 71 85 119;
+  --slate-700: 45 61 97;
+  --slate-800: 30 41 69;     /* Main border */
+  --slate-900: 13 21 39;     /* Cards/Sidebar background (Navy Slate) */
+  --slate-950: 7 10 20;      /* Page background (Deep Navy Black) */
+
+  --gray-50: 249 250 251;
+  --gray-100: 243 244 246;
+  --gray-200: 229 231 235;
+  --gray-300: 209 213 219;
+  --gray-400: 156 163 175;
+  --gray-500: 107 114 128;
+  --gray-600: 75 85 99;
+  --gray-700: 55 65 81;
+  --gray-800: 31 41 55;      /* Main border */
+  --gray-900: 17 24 39;      /* Modals/Dropdowns background (Navy Gray) */
+  --gray-950: 10 15 30;      /* Container background */
+
+  --primary-50: 30 27 75;
+  --primary-100: 35 30 90;
+  --primary-200: 79 70 229;
+  --primary-300: 99 102 241;
+  --primary-400: 129 140 248;
+  --primary-500: 129 140 248;
+  --primary-600: 99 102 241; /* Vibrant Indigo primary */
+  --primary-700: 79 70 229;
+  --primary-800: 67 56 202;
+  --primary-900: 55 48 163;
+
+  --chart-grid: 30 41 69;
+  --chart-text: 148 163 194;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  @apply bg-slate-950 text-slate-200 overflow-x-hidden antialiased;
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-800 rounded-full hover:bg-slate-700 transition-colors;
+}
+
+/* Animations */
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.animate-wave {
+  animation: wave 2s infinite;
+  transform-origin: 70% 70%;
+}
+
+/* Glassmorphism Classes */
+.glass {
+  @apply bg-slate-900/40 backdrop-blur-xl border border-white/5;
+}
+
+.glass-indigo {
+  @apply bg-indigo-500/5 backdrop-blur-xl border border-indigo-500/10;
+}
+
+/* Custom Utilities */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Card Hover Effects */
+.card-hover {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10;
+}
+
+/* Input Styles */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+/* Kanban Custom Styling */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @layer components {
@@ -44,7 +180,7 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-semibold rounded-xl transition-all duration-200 shadow-md hover:shadow-glow active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-500 hover:to-indigo-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-indigo-500/10 hover:shadow-indigo-500/20 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
@@ -64,7 +200,7 @@
   }
 
   .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border;
   }
 
   .sidebar-link {
@@ -72,7 +208,7 @@
   }
 
   .sidebar-link.active {
-    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-glow;
+    @apply bg-indigo-600/10 text-indigo-600 border-l-4 border-indigo-500 shadow-none;
   }
 
   .stat-card {
@@ -91,13 +227,15 @@
     background-size: 40px 40px;
   }
 
-  .priority-urgent { @apply bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400; }
-  .priority-high { @apply bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400; }
-  .priority-medium { @apply bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400; }
-  .priority-low { @apply bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400; }
+  /* Task Priority Colors */
+  .priority-urgent { @apply bg-red-100/70 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30; }
+  .priority-high { @apply bg-orange-100/70 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-900/30; }
+  .priority-medium { @apply bg-yellow-100/70 text-yellow-800 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-900/30; }
+  .priority-low { @apply bg-blue-100/70 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30; }
 
-  .status-todo { @apply bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400; }
-  .status-in-progress { @apply bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400; }
-  .status-review { @apply bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400; }
-  .status-completed { @apply bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400; }
+  /* Task Status Colors */
+  .status-todo { @apply bg-slate-100/70 text-slate-700 border-slate-200 dark:bg-slate-800/40 dark:text-slate-400 dark:border-slate-800/30; }
+  .status-in-progress { @apply bg-cyan-100/70 text-cyan-700 border-cyan-200 dark:bg-cyan-950/40 dark:text-cyan-400 dark:border-cyan-900/30; }
+  .status-review { @apply bg-purple-100/70 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-900/30; }
+  .status-completed { @apply bg-emerald-100/70 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/30; }
 }

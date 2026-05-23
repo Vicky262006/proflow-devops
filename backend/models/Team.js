@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 
 const teamSchema = new mongoose.Schema({
   name: {
@@ -10,39 +11,47 @@ const teamSchema = new mongoose.Schema({
   description: {
     type: String,
     default: '',
-    maxlength: [500, 'Description cannot exceed 500 characters'],
+    maxlength: [300, 'Description cannot exceed 300 characters'],
   },
   avatar: {
     type: String,
     default: '',
   },
-  owner: {
+  inviteCode: {
+    type: String,
+    unique: true,
+    default: () => crypto.randomBytes(4).toString('hex').toUpperCase(),
+  },
+  lead: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
   members: [{
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    role: { type: String, enum: ['admin', 'member'], default: 'member' },
-    joinedAt: { type: Date, default: Date.now },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    role: {
+      type: String,
+      enum: ['lead', 'member'],
+      default: 'member',
+    },
+    joinedAt: {
+      type: Date,
+      default: Date.now,
+    },
   }],
-  tasks: [{
+  sprints: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Task',
+    ref: 'Sprint',
   }],
-  inviteCode: {
-    type: String,
-    unique: true,
-    sparse: true,
+  isActive: {
+    type: Boolean,
+    default: true,
   },
 }, { timestamps: true });
 
-// Generate random invite code before saving
-teamSchema.pre('save', function (next) {
-  if (!this.inviteCode) {
-    this.inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-  }
-  next();
-});
+teamSchema.index({ 'members.user': 1 });
 
 module.exports = mongoose.model('Team', teamSchema);

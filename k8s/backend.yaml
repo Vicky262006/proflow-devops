@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proflow-api
+  namespace: proflow
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: proflow-api
+  template:
+    metadata:
+      labels:
+        app: proflow-api
+    spec:
+      containers:
+      - name: proflow-api
+        image: proflow/api:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - secretRef:
+            name: proflow-secrets
+        - configMapRef:
+            name: proflow-config
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proflow-api-service
+  namespace: proflow
+spec:
+  selector:
+    app: proflow-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: ClusterIP
